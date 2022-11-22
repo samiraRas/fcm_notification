@@ -11,7 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 Future<void> backgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   print("Handling a background message ${message.messageId}");
-  print(message.data);
+  print("notification ${message.data}");
   print(message.data.toString());
   flutterNotificationPlugin.show(
       message.data.hashCode,

@@ -53,6 +53,24 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'mRep7',
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
   String? token;
   List subscribed = [];
   List topics = ["Apple", "Lenovo", "Samsung", "Vivo", "Oppo", "Nokia"];
@@ -60,6 +78,7 @@ class _MyAppState extends State<MyApp> {
 
   getTokenfromFirebase() async {
     token = await FirebaseMessaging.instance.getToken();
+    print("token ashbei $token");
   }
 
   getTopics() async {
@@ -81,24 +100,26 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     var token = _firebaseMessaging.getToken();
     print("token result${token}");
-
-    // var initializationSettings;
-    // flutterNotificationPlugin.initialize(initializationSettings);
-    // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    //   RemoteNotification? notification = message.notification;
-    //   AndroidNotification? android = message.notification?.android;
-    //   if (notification != null && android != null) {
-    //     flutterNotificationPlugin.show(
-    //       notification.hashCode,
-    //       notification.title,
-    //       notification.body,
-    //       const NotificationDetails(
-    //         android: AndroidNotificationDetails("id", "name",
-    //             channelDescription: "this channel is importance"),
-    //       ),
-    //     );
-    //   }
-    // });
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings("@mipmap/ic_launcher");
+    var initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    flutterNotificationPlugin.initialize(initializationSettings);
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+        flutterNotificationPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          const NotificationDetails(
+            android: AndroidNotificationDetails("id", "name",
+                channelDescription: "this channel is importance"),
+          ),
+        );
+      }
+    });
     getTokenfromFirebase();
     getTopics();
   }
@@ -135,7 +156,8 @@ class _MyAppState extends State<MyApp> {
                         await FirebaseFirestore.instance
                             .collection("topics")
                             .doc(token)
-                            .set({topics[index]: "subscribe"});
+                            .set({topics[index]: "subscribe"},
+                                SetOptions(merge: true));
 
                         setState(() {
                           subscribed.add(topics[index]);
@@ -148,100 +170,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
-// class MyHomePage extends StatefulWidget {
-//   const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-//   final String title;
-
-//   @override
-//   State<MyHomePage> createState() => _MyHomePageState();
-// }
-
-// class _MyHomePageState extends State<MyHomePage> {
-//   int _counter = 0;
-
-
-//   getTokenz() async {}
-//   @override
-//   void initState() {
-    
-//     // FirebaseMessaging.instance.getInitialMessage().then(
-//     //   (message) {
-//     //     print("FirebaseMessaging.instance.getInitialMessage");
-//     //     if (message != null) {
-//     //       print("New Notification");
-//     //       // if (message.data['_id'] != null) {
-//     //       //   Navigator.of(context).push(
-//     //       //     MaterialPageRoute(
-//     //       //       builder: (context) => DemoScreen(
-//     //       //         id: message.data['_id'],
-//     //       //       ),
-//     //       //     ),
-//     //       //   );
-//     //       // }
-//     //     }
-//     //   },
-//     // );
-
-//     // // 2. This method only call when App in forground it mean app must be opened
-//     // FirebaseMessaging.onMessage.listen(
-//     //   (message) {
-//     //     print("FirebaseMessaging.onMessage.listen");
-//     //     if (message.notification != null) {
-//     //       print(message.notification!.title);
-//     //       print(message.notification!.body);
-//     //       print("message.data11 ${message.data}");
-//     //       // LocalNotificationService.display(message);
-
-//     //     }
-//     //   },
-//     // );
-
-//     // // 3. This method only call when App in background and not terminated(not closed)
-//     // FirebaseMessaging.onMessageOpenedApp.listen(
-//     //   (message) {
-//     //     print("FirebaseMessaging.onMessageOpenedApp.listen");
-//     //     if (message.notification != null) {
-//     //       print(message.notification!.title);
-//     //       print(message.notification!.body);
-//     //       print("message.data22 ${message.data['_id']}");
-//     //     }
-//     //   },
-//     // );
-//   }
-
-//   void _incrementCounter() {
-//     setState(() {
-//       _counter++;
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(widget.title),
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: <Widget>[
-//             const Text(
-//               'You have pushed the button this many times:',
-//             ),
-//             Text(
-//               '$_counter',
-//               style: Theme.of(context).textTheme.headline4,
-//             ),
-//           ],
-//         ),
-//       ),
-//       floatingActionButton: FloatingActionButton(
-//         onPressed: _incrementCounter,
-//         tooltip: 'Increment',
-//         child: const Icon(Icons.add),
-//       ),
-//     );
-//   }
-// }
